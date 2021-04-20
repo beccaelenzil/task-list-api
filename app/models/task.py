@@ -15,6 +15,7 @@ class Task(db.Model):
             is_complete = self.completed_at
 
         return {
+            "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": is_complete
