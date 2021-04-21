@@ -5,7 +5,7 @@ from flask import jsonify, request, Blueprint, make_response
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
-@task_bp.route("", methods=["GET", "POST", "PUT", "DELETE"])
+@task_bp.route("", methods=["GET", "POST"])
 def tasks():
     if request.method == "POST":
         request_body = request.get_json()
@@ -25,7 +25,7 @@ def tasks():
             return_response = make_response(
                 {"details": "Invalid data"}, 400)
         else:
-            return_response = make_response(new_task.make_json(), 201)
+            return_response = make_response({'task': new_task.make_json()}, 201)
 
 
         return return_response
@@ -41,6 +41,34 @@ def tasks():
         print(return_response)
         
         return return_response
+
+
+@task_bp.route("/<task_id>", methods=["GET", "PUT", "DELETE"])
+def task(task_id):
+    task = Task.query.get(task_id)
+    if not task:
+        return make_response('',404)
+
+    if request.method=="GET":
+        return make_response({'task':task.make_json()}, 200)
+
+    elif request.method=="PUT":
+        
+        request_body = request.get_json()
+
+        if request_body['title']:
+            task.title = request_body['title']
+        if request_body['description']:
+            task.description = request_body['description']
+        if request_body['completed_at']:
+            task.completed_at = request_body['completed_at']
+
+        return make_response({'task': task.make_json()}, 200)
+
+    elif request.method=="DELETE":
+        db.session.delete(task)
+        db.session.commit()
+        return make_response({'details':f'Task {task.task_id} "{task.title}" successfully deleted'},200)
 
 
 

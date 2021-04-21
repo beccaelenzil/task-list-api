@@ -1,4 +1,5 @@
 from app.models.task import Task
+import pytest
 
 
 def test_get_tasks_no_saved_tasks(client):
@@ -123,7 +124,6 @@ def test_update_task_not_found(client):
     assert response.status_code == 404
     assert response_body == None
 
-
 def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
@@ -136,7 +136,6 @@ def test_delete_task(client, one_task):
         "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
     }
     assert Task.query.get(1) == None
-
 
 def test_delete_task_not_found(client):
     # Act
