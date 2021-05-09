@@ -3,6 +3,8 @@ from app import db
 from app.models.task import Task
 from flask import jsonify, request, Blueprint, make_response
 import datetime
+import requests
+import os
 
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -11,7 +13,8 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 def tasks():
     if request.method == "POST":
         request_body = request.get_json()
-        
+
+
         if ('title' not in request_body) or ('description' not in request_body) or ('completed_at' not in request_body):
             return make_response({"details": "Invalid data"}, 400)
 
@@ -77,8 +80,8 @@ def task(task_id):
             task.title = request_body['title']
         if request_body['description']:
             task.description = request_body['description']
-        if request_body['completed_at']:
-            task.completed_at = request_body['completed_at']
+        # if request_body['completed_at']:
+        #     task.completed_at = request_body['completed_at']
 
         return make_response({'task': task.make_json()}, 200)
 
@@ -90,10 +93,21 @@ def task(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
     task = Task.query.get(task_id)
+
     if not task:
         return make_response('',404)
     else:
+        completed_at = task.completed_at
         task.completed_at = datetime.datetime.utcnow()
+
+    if not completed_at:
+        requests.post("https://slack.com/api/chat.postMessage",
+        data={
+            "token": os.environ.get("SLACK_TOKEN"), 
+            "channel": "task-list-test-channel",
+            "text": f"Task {task.title} has been completed."
+            })
+
 
     return make_response({'task': task.make_json()}, 200)
 
@@ -103,8 +117,8 @@ def mark_incomplete(task_id):
     task = Task.query.get(task_id)
     if not task:
         return make_response('',404)
-    else:
-        task.completed_at = None
+    
+    task.completed_at = None
 
     return make_response({'task': task.make_json()}, 200)
 
