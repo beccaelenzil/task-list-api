@@ -83,6 +83,8 @@ def task(task_id):
         # if request_body['completed_at']:
         #     task.completed_at = request_body['completed_at']
 
+        session.commit()
+
         return make_response({'task': task.make_json()}, 200)
 
     elif request.method=="DELETE":
@@ -96,9 +98,10 @@ def mark_complete(task_id):
 
     if not task:
         return make_response('',404)
-    else:
-        completed_at = task.completed_at
-        task.completed_at = datetime.datetime.utcnow()
+    
+    completed_at = task.completed_at
+    task.completed_at = datetime.datetime.utcnow()
+    session.commit()
 
     if not completed_at:
         requests.post("https://slack.com/api/chat.postMessage",
@@ -119,6 +122,7 @@ def mark_incomplete(task_id):
         return make_response('',404)
     
     task.completed_at = None
+    session.commit()
 
     return make_response({'task': task.make_json()}, 200)
 
