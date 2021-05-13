@@ -76,12 +76,12 @@ def task(task_id):
         
         request_body = request.get_json()
 
-        if request_body['title']:
+        if 'title' in request_body:
             task.title = request_body['title']
-        if request_body['description']:
+        if 'description' in request_body:
             task.description = request_body['description']
-        # if request_body['completed_at']:
-        #     task.completed_at = request_body['completed_at']
+        if 'completed_at' in request_body:
+             task.completed_at = request_body['completed_at']
 
         db.session.commit()
 
@@ -103,13 +103,13 @@ def mark_complete(task_id):
     task.completed_at = datetime.datetime.utcnow()
     db.session.commit()
 
-    if not completed_at:
-        requests.post("https://slack.com/api/chat.postMessage",
-        data={
-            "token": os.environ.get("SLACK_TOKEN"), 
-            "channel": "task-list-test-channel",
-            "text": f"Task {task.title} has been completed."
-            })
+    # if not completed_at:
+    #     requests.post("https://slack.com/api/chat.postMessage",
+    #     data={
+    #         "token": os.environ.get("SLACK_TOKEN"), 
+    #         "channel": "task-list-test-channel",
+    #         "text": f"Task {task.title} has been completed."
+    #         })
 
 
     return make_response({'task': task.make_json()}, 200)

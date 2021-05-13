@@ -90,7 +90,7 @@ def test_update_task(client, one_task):
     response = client.put("/tasks/1", json={
         "title": "Updated Task Title",
         "description": "Updated Test Description",
-        #"completed_at": None
+        "completed_at": None
     })
     response_body = response.get_json()
 
