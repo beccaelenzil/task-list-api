@@ -80,8 +80,6 @@ def task(task_id):
             task.title = request_body['title']
         if 'description' in request_body:
             task.description = request_body['description']
-        if 'completed_at' in request_body:
-             task.completed_at = request_body['completed_at']
 
         db.session.commit()
 
